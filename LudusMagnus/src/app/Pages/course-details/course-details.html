@@ -1,0 +1,160 @@
+<div class="course-details-container">
+  <!-- Geri dönüş butonu -->
+  <div class="back-navigation">
+    <button class="back-btn" routerLink="/cursus">
+      <span class="back-icon">←</span>
+      <span>Back to Courses</span>
+    </button>
+  </div>
+
+  @if (details && details.id) {
+    <!-- Ana kurs detay kartı -->
+    <div class="course-detail-card">
+      <!-- Kurs başlığı ve durum -->
+      <div class="course-header">
+        <div class="course-status-section">
+          <span class="level-badge" [ngClass]="'level-' + details.level">
+            {{ details.level | titlecase }}
+          </span>
+          <span class="status-indicator" [ngClass]="details.isActive ? 'active' : 'inactive'">
+            {{ details.isActive ? 'Aktif' : 'Pasif' }}
+          </span>
+        </div>
+        
+        <h1 class="course-title">{{ details.title }}</h1>
+        <p class="course-description">{{ details.description }}</p>
+      </div>
+
+      <!-- Kurs bilgileri grid -->
+      <div class="course-info-grid">
+        <div class="info-card">
+          <div class="info-icon">👨‍🏫</div>
+          <div class="info-content">
+            <span class="info-label">Instructor</span>
+            <span class="info-value">{{ details.instructor }}</span>
+          </div>
+        </div>
+
+        <div class="info-card">
+          <div class="info-icon">⏱️</div>
+          <div class="info-content">
+            <span class="info-label">Duration</span>
+            <span class="info-value">{{ details.duration }}</span>
+          </div>
+        </div>
+
+        <div class="info-card">
+          <div class="info-icon">📚</div>
+          <div class="info-content">
+            <span class="info-label">Category</span>
+            <span class="info-value">{{ details.category }}</span>
+          </div>
+        </div>
+
+        <div class="info-card">
+          <div class="info-icon">👥</div>
+          <div class="info-content">
+            <span class="info-label">Students</span>
+            <span class="info-value">{{ details.enrolledStudents }}</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Fiyat ve kayıt bölümü -->
+      <div class="price-registration-section">
+        <div class="price-info">
+          <span class="price-label">Course Price</span>
+          <span class="price-value">${{ details.price }}</span>
+          <small class="created-date">Created: {{ details.createdAt | date:'dd/MM/yyyy' }}</small>
+        </div>
+
+        <div class="registration-actions">
+          @if (details.isActive && authService.isLoggedIn()) {
+            <button class="btn btn-primary btn-large" [routerLink]="['/enroll-curs', details.id]">
+              <span class="btn-icon">🎓</span>
+              Enroll Now
+            </button>
+            <button 
+              class="btn btn-outline btn-large" 
+              [ngClass]="{'saved-btn': savedCurs, 'save-btn': !savedCurs}"
+              (click)="save()">
+              <span class="btn-icon">{{ savedCurs ? '✅' : '💾' }}</span>
+              <span class="btn-text">{{ savedCurs ? 'Saved' : 'Save for Later' }}</span>
+              <span class="btn-hover-text">{{ savedCurs ? 'Delete' : 'Save for Later' }}</span>
+            </button>
+          }
+           @else if (details.isActive && !authService.isLoggedIn()) {
+            <button class="btn btn-secondary btn-large" [routerLink]="['/login']">
+              <span class="btn-icon">🔐</span>
+              Login to Enroll
+            </button>
+          } @else {
+            <button class="btn btn-disabled btn-large" disabled>
+              <span class="btn-icon">⏸️</span>
+              Course Inactive
+            </button>
+          } 
+        </div>
+      </div>
+    </div>
+
+    <!-- Kurs içeriği bölümü -->
+    <div class="course-content-section">
+      <h2 class="section-title">Course Content</h2>
+      <div class="content-placeholder">
+        <div class="placeholder-icon">📋</div>
+        <p>Course curriculum and materials will be displayed here.</p>
+      </div>
+    </div>
+
+    <!-- Yorumlar bölümü -->
+    <div class="comments-section">
+      <h2 class="section-title">Student Reviews ({{ comments.length }})</h2>
+      
+      @if (isLoadingComments) {
+        <div class="loading-comments">
+          <div class="loading-spinner-small"></div>
+          <p>Loading reviews...</p>
+        </div>
+      } @else if (comments.length > 0) {
+        <div class="comments-list">
+          @for (comment of comments; track comment.id) {
+            <div class="comment-card">
+              <div class="comment-header">
+                <div class="user-info">
+                  <div class="user-avatar">{{ comment.userName.charAt(0).toUpperCase() }}</div>
+                  <div class="user-details">
+                    <h4 class="user-name">{{ comment.userName }}</h4>
+                    <div class="comment-rating">
+                      @for (star of getStarArray(comment.rating); track $index) {
+                        <span class="star" [class.filled]="star === 1">★</span>
+                      }
+                      <span class="rating-text">({{ comment.rating }}/5)</span>
+                    </div>
+                  </div>
+                </div>
+                <div class="comment-date">
+                  {{ comment.createdAt | date:'MMM dd, yyyy' }}
+                </div>
+              </div>
+              <div class="comment-body">
+                <p class="comment-text">{{ comment.comment }}</p>
+              </div>
+            </div>
+          }
+        </div>
+      } @else {
+        <div class="no-comments">
+          <div class="placeholder-icon">💬</div>
+          <p>No reviews yet. Be the first to review this course!</p>
+        </div>
+      }
+    </div>
+  } @else if (isLoading) {
+    <!-- Loading durumu -->
+    <div class="loading-state">
+      <div class="loading-spinner"></div>
+      <p>Loading course details...</p>
+    </div>
+  }
+</div>
