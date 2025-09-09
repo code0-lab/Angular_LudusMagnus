@@ -17,7 +17,7 @@ export class TeacherGuard implements CanActivate {
   canActivate(): boolean {
     // Önce kullanıcının giriş yapmış olup olmadığını kontrol et
     if (!this.authService.isLoggedIn()) {
-      this.router.navigate(['/login']);
+      this.router.navigate(['/unauthorized']);
       return false;
     }
 

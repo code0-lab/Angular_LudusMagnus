@@ -5,7 +5,8 @@ import { RouterModule, Router } from '@angular/router';
 import { IUser } from '../../models/IUser';
 import { AuthService } from '../../services/auth.service';
 import { FormsModule } from '@angular/forms';
-import { ICursus } from '../../models/ICursus';
+import { ICourses } from '../../models/Icourses';
+import { ValidationUtils } from '../../Utils/validEmailPassword'; // ValidationUtils import edildi
 
 
 
@@ -19,8 +20,8 @@ export class User implements OnInit {
   activeSection: string = 'profile';
   currentUser: IUser | null = null;
   isLoading: boolean = true;
-  cursusList: ICursus[] = [];
-  savedCourses: ICursus[] = []; // Kaydedilmiş kursların detayları
+  cursusList: ICourses[] = [];
+  savedCourses: ICourses[] = []; // Kaydedilmiş kursların detayları
 
   constructor(private api: Api, public authService: AuthService, private cd: ChangeDetectorRef, private router: Router) { }
 
@@ -33,18 +34,18 @@ export class User implements OnInit {
     const user = this.authService.getCurrentUser();
     
     if (user && user.id) {
-      // API'den güncel kullanıcı bilgilerini çek
-      this.api.getUser(+user.id).subscribe({
+      // API'den güncel kullanıcı bilgilerini çek - string ID kullan
+      this.api.getUser(user.id).subscribe({ // + operatörünü kaldırdık
         next: (userData) => {
           this.currentUser = userData;
-          this.loadSavedCourses(); // Kaydedilmiş kursları yükle
+          this.loadSavedCourses();
           this.isLoading = false;
           console.log('Kullanıcı bilgileri yüklendi:', userData);
           this.cd.detectChanges();
         },
         error: (error) => {
           console.error('Kullanıcı bilgileri yüklenirken hata:', error);
-          this.currentUser = user; // Fallback olarak AuthService'den gelen veriyi kullan
+          this.currentUser = user;
           this.isLoading = false;
         }
       });
@@ -62,7 +63,7 @@ export class User implements OnInit {
       
       // Her kurs ID'si için kurs detaylarını çek
       this.currentUser.savedCourses.forEach(courseId => {
-        this.api.getCursusById(courseId).subscribe({
+        this.api.getCoursesById(courseId).subscribe({
           next: (course) => {
             this.savedCourses.push(course);
             this.cd.detectChanges();
@@ -92,12 +93,13 @@ export class User implements OnInit {
       this.api.updateUser(this.currentUser.id.toString(), updatedUser).subscribe({
         next: (response) => {
           this.currentUser = response;
-          console.log('Profil güncellendi:', response);
-          alert('Profil başarıyla güncellendi!');
+          console.log('Profile Update Succeed:', response);
+          this.cd.detectChanges();
+          alert('Profile updated successfully!');
         },
         error: (error) => {
-          console.error('Profil güncellenirken hata:', error);
-          alert('Profil güncellenirken hata oluştu!');
+          console.error('Error occurred during update:', error);
+          alert('Profile update failed!');
         }
       });
     }
@@ -105,21 +107,60 @@ export class User implements OnInit {
 
   changePassword(currentPassword: string, newPassword: string): void {
     // Şifre değiştirme işlemi
-    console.log('Şifre değiştirme işlemi:', { currentPassword, newPassword });
-    // Bu kısım AuthService'de implement edilmeli
-    alert('Şifre değiştirme özelliği yakında eklenecek!');
+    if (!this.currentUser || !this.currentUser.id) {
+      alert('User information not found!');
+      this.router.navigate(['/not-found']);
+      return;
+    }
+  
+    // Mevcut şifrenin doğruluğunu kontrol et
+    if (this.currentUser.password !== currentPassword) {
+      alert('Current password is incorrect!');
+      return;
+    }
+  
+    // Yeni şifre validasyonu ValidationUtils ile merkezi validasyon ile kontrol edildi bu sayede validasyon değişir ise daha kolay değişimi yapılacak.
+    const passwordValidation = ValidationUtils.validatePassword(newPassword);
+    if (!passwordValidation.isValid) {
+      alert(passwordValidation.message);
+      return;
+    }
+  
+    // Kullanıcı nesnesini güncelle
+    const updatedUser: IUser = {
+      ...this.currentUser,//Yeni öğrenim "..."
+      password: newPassword
+    };
+  
+    // API'ye güncelleme isteği gönder
+    this.api.updateUser(this.currentUser.id, updatedUser).subscribe({
+      next: (response) => {
+        console.log('Password updated successfully:', response);
+        // Mevcut kullanıcı bilgilerini güncelle
+        this.currentUser = response;
+        // AuthService'deki kullanıcı bilgilerini de güncelle
+        if (typeof localStorage !== 'undefined') {
+          localStorage.setItem('currentUser', JSON.stringify(response));
+        }
+        alert(`Password updated successfully! ${passwordValidation.message}`);
+      },
+      error: (error) => {
+        console.error('Error occurred during password update:', error);
+        alert('An error occurred while updating your password!');
+      }
+    });
   }
 
   updatePrivacySettings(settings: any): void {
     // Gizlilik ayarları güncelleme
     console.log('Gizlilik ayarları:', settings);
-    alert('Gizlilik ayarları güncellendi!');
+    alert('Privacy settings updated!');
   }
 
   updateNotificationSettings(settings: any): void {
     // Bildirim ayarları güncelleme
     console.log('Bildirim ayarları:', settings);
-    alert('Bildirim ayarları güncellendi!');
+    alert('Notification settings updated!');
   }
 
   getUserInitial(): string {
@@ -130,10 +171,91 @@ export class User implements OnInit {
   }
 
   getUserName(): string {
-    return this.currentUser?.name || 'Kullanıcı';
+    return this.currentUser?.name || 'User';
   }
 
   getUserEmail(): string {
     return this.currentUser?.email || 'user@example.com';
+  }
+
+  // Kullanıcının öğretmen veya admin olup olmadığını kontrol et
+  isTeacherOrAdmin(): boolean {
+    return this.currentUser?.role === 'teacher' || this.currentUser?.role === 'admin';
+  }
+
+  isAdmin(): boolean {
+    return this.currentUser?.role === 'admin';
+  }
+
+  isTeacher(): boolean {
+    return this.currentUser?.role === 'teacher';
+  }
+
+  // Teacher panel'e yönlendir
+  navigateToTeacherPanel(): void {
+    this.router.navigate(['/teacher-panel']);
+  }
+
+  navigateToAdminPanel(): void {
+    this.router.navigate(['/admin-panel']);
+  }
+
+  // Kullanıcı profil silme işlemi
+  deleteProfile(): void {
+    if (!this.currentUser || !this.currentUser.id) {
+      alert('User information not found!');
+      return;
+    }
+  
+    // Admin kontrolü
+    if (this.currentUser.role === 'admin') {
+      this.router.navigate(['/unauthorized']);
+      return;
+    }
+  
+    // Kullanıcıya uyarı göster
+    const confirmDelete = confirm('Danger you about to delete your profile. Are you sure?');
+    if (!confirmDelete) {
+      return;
+    }
+  
+    // Teacher için kurs kontrolü
+    if (this.currentUser.role === 'teacher') {
+      this.api.getCursusByCreator(this.currentUser.id).subscribe({
+        next: (courses) => {
+          if (courses && courses.length > 0) {
+            alert('Please fulfill your lessons first');
+            return;
+          } else {
+            this.performDeleteProfile();
+          }
+        },
+        error: (error) => {
+          console.error('Kurs kontrolü sırasında hata:', error);
+          alert('An error occurred while checking your courses!');
+        }
+      });
+    } else if (this.currentUser.role === 'student') {
+      // Student için direkt sil
+      this.performDeleteProfile();
+    }
+  }
+
+  // Profil silme işlemini gerçekleştir
+  private performDeleteProfile(): void {
+    if (!this.currentUser || !this.currentUser.id) return;
+  
+    this.api.deleteUser(this.currentUser.id).subscribe({
+      next: () => {
+        alert('Your profile has been successfully deleted!');
+        this.authService.logout();
+        this.router.navigate(['/']);
+        this.cd.detectChanges();
+      },
+      error: (error) => {
+        console.error('Profil silme hatası:', error);
+        alert('An error occurred while deleting your profile!');
+      }
+    });
   }
 }

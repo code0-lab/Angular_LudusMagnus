@@ -4,22 +4,22 @@ import { Observable, map, catchError, of } from 'rxjs';
 import { IToken } from '../models/IToken';
 
 @Injectable({
-  providedIn: 'root' // Singleton pattern ile sadece bir tane instance oluşturulur
+  providedIn: 'root'
 })
 export class TokenService {
   private apiUrl = 'http://localhost:3000/tokens';
 
   constructor(private http: HttpClient) {}
 
-  // Token oluştur
-  generateToken(userId: number): Observable<IToken> {
+  // Token oluştur - userId artık string
+  generateToken(userId: string): Observable<IToken> {
     const token = this.createRandomToken();
-    const expiresAt = new Date(Date.now() + 60 * 60 * 1000).toISOString(); // 1 saat sonra
+    const expiresAt = new Date(Date.now() + 60 * 60 * 1000).toISOString();
     const createdAt = new Date().toISOString();
 
     const newToken: Omit<IToken, 'id'> = {
       token,
-      userId,
+      userId, // artık string
       expiresAt,
       createdAt
     };
@@ -27,11 +27,11 @@ export class TokenService {
     return this.http.post<IToken>(this.apiUrl, newToken);
   }
 
-  // Token doğrula
-  validateToken(token: string): Observable<IToken | null> {
-    return this.http.get<IToken[]>(`${this.apiUrl}?token=${token}`).pipe(//pipe map operatörü bir sonraki operatöre veriyi aktarır subscribe kullansaydık map kullanamazdık
-      map(tokens => {// map operatörü zincirleme işlemi yapar
-        if (tokens.length === 0) return null;
+  // Token doğrula - iki parametreli versiyon
+  validateToken(token: string, userId: string): Observable<boolean> {
+    return this.http.get<IToken[]>(`${this.apiUrl}?token=${token}&userId=${userId}`).pipe(
+      map(tokens => {
+        if (tokens.length === 0) return false;
         
         const foundToken = tokens[0];
         const now = new Date();
@@ -39,18 +39,18 @@ export class TokenService {
         
         // Token süresi dolmuş mu kontrol et
         if (now > expiresAt) {
-          this.deleteToken(foundToken.id!).subscribe(); // Süresi dolmuş token'ı sil
-          return null;
+          this.deleteToken(foundToken.id!).subscribe();
+          return false;
         }
         
-        return foundToken;
+        return true;
       }),
-      catchError(() => of(null))
+      catchError(() => of(false))
     );
   }
 
-  // Kullanıcının token'ını getir, ortak fonksiyonda kullanılabilirdi ancak daha esnek kod kullanımı için ayrı fonksiyonda oluşturulmuşturuldu.
-  getUserToken(userId: number): Observable<IToken | null> {
+  // Kullanıcının token'ını getir - userId artık string
+  getUserToken(userId: string): Observable<IToken | null> {
     return this.http.get<IToken[]>(`${this.apiUrl}?userId=${userId}`).pipe(
       map(tokens => {
         if (tokens.length === 0) return null;
@@ -61,7 +61,7 @@ export class TokenService {
         
         // Token süresi dolmuş mu kontrol et
         if (now > expiresAt) {
-          this.deleteToken(userToken.id!).subscribe(); // Süresi dolmuş token'ı sil
+          this.deleteToken(userToken.id!).subscribe();
           return null;
         }
         
@@ -76,8 +76,8 @@ export class TokenService {
     return this.http.delete(`${this.apiUrl}/${tokenId}`);
   }
 
-  // Kullanıcının tüm token'larını sil
-  deleteUserTokens(userId: number): Observable<any> {
+  // Kullanıcının tüm token'larını sil - userId artık string
+  deleteUserTokens(userId: string): Observable<any> {
     return this.http.get<IToken[]>(`${this.apiUrl}?userId=${userId}`).pipe(
       map(tokens => {
         tokens.forEach(token => {
@@ -108,11 +108,11 @@ export class TokenService {
 
   // Rastgele token oluştur
   private createRandomToken(): string {
-    const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789'; //karakter havuzu
-    let result = '';  // Boş string ile başla, karakterleri buraya biriktir (let metodu hafızada yer açar)
+    const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+    let result = '';
     for (let i = 0; i < 64; i++) {
-      result += chars.charAt(Math.floor(Math.random() * chars.length)); //random kullanıp rastgele karakter seç ve ekle
+      result += chars.charAt(Math.floor(Math.random() * chars.length));
     }
-    return result; // 64 karakterlik token döndür
+    return result;
   }
 }

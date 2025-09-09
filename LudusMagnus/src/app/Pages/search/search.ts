@@ -1,6 +1,6 @@
 import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { Api } from '../../services/api';
-import { ICursus } from '../../models/ICursus';
+import { ICourses } from '../../models/Icourses';
 import { ActivatedRoute, RouterModule } from '@angular/router';
 import { CommonModule } from '@angular/common';
 
@@ -12,7 +12,7 @@ import { CommonModule } from '@angular/common';
 })
 export class Search implements OnInit {
 
-  searchResults: ICursus[] = [];
+  searchResults: ICourses[] = [];
   searchQuery = '';
   isLoading = false;
   hasSearched = false;
@@ -38,7 +38,7 @@ export class Search implements OnInit {
     this.hasSearched = true;
     
     // Tüm kursları çek ve client-side filtering yap
-    this.api.getCursus().subscribe({
+    this.api.getCourses().subscribe({
       next: (allCourses) => {
         // searchQuery ile eşleşen kursları filtrele
         this.searchResults = allCourses.filter(course => {

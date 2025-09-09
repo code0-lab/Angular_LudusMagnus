@@ -19,7 +19,7 @@
     },
     {
       "id": "2",
-      "name": "Teacher User",
+      "name": "Teacher user",
       "email": "teacher@ludusmagnus.com",
       "password": "teacher123",
       "role": "teacher",
@@ -30,7 +30,9 @@
         "a170",
         "7"
       ],
-      "savedCourses": []
+      "savedCourses": [],
+      "phone": "",
+      "bio": ""
     },
     {
       "id": "3",
@@ -51,44 +53,33 @@
       ]
     },
     {
-      "id": "0",
-      "name": "Ahmet Demircan",
-      "email": "john@example.com",
-      "password": "xahvec-wovbag-fuWpa4",
-      "role": "student",
-      "courseIds": [
-        "1",
-        "2",
-        "3"
-      ],
-      "savedCourses": []
+      "id": "128",
+      "name": "Şifre deneme hesabı",
+      "email": "sifre@deneme.mail.com",
+      "password": "matxi8-duDrid-jehkew",
+      "role": "student"
     },
     {
-      "id": "0",
-      "name": "AHMET DEMİRCAN",
-      "email": "admin@luudusmagnus.com",
-      "password": "hepfig-Vepdum-5gegna",
-      "role": "teacher",
-      "courseIds": [
-        "1",
-        "2",
-        "3"
-      ],
-      "savedCourses": []
+      "id": "u0",
+      "name": "deneme2",
+      "email": "has@hast.mail.com",
+      "password": "sirje9-nImjum-mygbit",
+      "role": "student"
     }
   ],
   "tokens": [
     {
-      "id": "5aee",
-      "token": "e5pWxJyWLxB0pM7lQTj2xSvN2axK98wg4BXUul41b7JdaCJqeFi9tY34HrzZ1evB",
+      "id": "9b1d",
+      "token": "HSfoAgB5MKVMO0OdeuYkrkhnFZlj0sWrXFKZVvoyHgYQDZMrIWa66d6qamb5IgBa",
       "userId": "3",
-      "expiresAt": "2025-09-03T22:23:18.166Z",
-      "createdAt": "2025-09-03T21:23:18.166Z"
+      "expiresAt": "2025-09-09T13:11:38.278Z",
+      "createdAt": "2025-09-09T12:11:38.278Z"
     }
   ],
   "courses": [
     {
       "id": "1",
+      "createdById": 0,
       "title": "Angular Temelleri",
       "description": "Angular framework'ünün temel kavramlarını öğrenin. Component'ler, service'ler, routing ve daha fazlası.",
       "instructor": "Ahmet Yılmaz",
@@ -104,6 +95,7 @@
     },
     {
       "id": "2",
+      "createdById": 0,
       "title": "React ile Modern Web Geliştirme",
       "description": "React kütüphanesi ile modern, interaktif web uygulamaları geliştirmeyi öğrenin.",
       "instructor": "Elif Kaya",
@@ -119,6 +111,7 @@
     },
     {
       "id": "3",
+      "createdById": 0,
       "title": "Node.js Backend Geliştirme",
       "description": "Node.js ile RESTful API'ler, veritabanı entegrasyonu ve backend mimarisi öğrenin.",
       "instructor": "Mehmet Demir",
@@ -134,6 +127,7 @@
     },
     {
       "id": "4",
+      "createdById": 0,
       "title": "Python ile Veri Bilimi",
       "description": "Python programlama dili ile veri analizi, makine öğrenmesi ve veri görselleştirme.",
       "instructor": "Ayşe Özkan",
@@ -149,6 +143,7 @@
     },
     {
       "id": "5",
+      "createdById": 0,
       "title": "JavaScript ES6+ ve Modern Özellikler",
       "description": "Modern JavaScript özelliklerini öğrenin: Arrow functions, async/await, destructuring ve daha fazlası.",
       "instructor": "Can Yıldız",
@@ -164,6 +159,7 @@
     },
     {
       "id": "6",
+      "createdById": 0,
       "title": "Docker ve Konteyner Teknolojileri",
       "description": "Docker ile uygulama konteynerleştirme, Docker Compose ve Kubernetes temelleri.",
       "instructor": "Emre Şahin",
@@ -179,6 +175,7 @@
     },
     {
       "id": "7",
+      "createdById": 0,
       "title": "Frontend development via Angular",
       "description": "This is for trying to new curs.ts",
       "duration": "12 m",
@@ -193,6 +190,7 @@
     },
     {
       "id": "8",
+      "createdById": 0,
       "title": "Vue.js ile SPA Geliştirme",
       "description": "Vue.js framework'ü ile Single Page Application geliştirme teknikleri ve best practice'ler.",
       "instructor": "Zeynep Arslan",
@@ -209,6 +207,7 @@
     },
     {
       "id": "9",
+      "createdById": 0,
       "title": "MongoDB ve NoSQL Veritabanları",
       "description": "MongoDB ile NoSQL veritabanı tasarımı, aggregation pipeline ve performans optimizasyonu.",
       "instructor": "Burak Kılıç",
@@ -225,6 +224,7 @@
     },
     {
       "id": "10",
+      "createdById": 0,
       "title": "AWS Cloud Computing Temelleri",
       "description": "Amazon Web Services ile cloud computing, EC2, S3, RDS ve diğer temel servisleri öğrenin.",
       "instructor": "Fatma Yıldırım",
@@ -241,6 +241,7 @@
     },
     {
       "id": "a170",
+      "createdById": 0,
       "title": "sxdcfvgbhnjmkölçş.ighj",
       "description": "rdctfvygbuhnıjkmolöş",
       "duration": "12",
@@ -251,6 +252,36 @@
       "rating": 0,
       "isActive": true,
       "createdAt": "2025-09-02T12:23:53.132Z",
+      "enrolledStudents": 0
+    },
+    {
+      "id": "e434",
+      "createdById": "2",
+      "title": "kullanıcı tarafından oluşturulan kurs deneme",
+      "description": "hiç bir işe yaramaz",
+      "duration": "2 m",
+      "level": "beginner",
+      "instructor": "Teacher User",
+      "price": 100,
+      "category": "",
+      "rating": 0,
+      "isActive": true,
+      "createdAt": "2025-09-04T14:17:54.903Z",
+      "enrolledStudents": 0
+    },
+    {
+      "id": "e15b",
+      "title": "try for Cours",
+      "createdById": "2",
+      "description": "just demo",
+      "duration": "1 week",
+      "level": "beginner",
+      "instructor": "Teacher user",
+      "price": 1,
+      "category": "",
+      "rating": 0,
+      "isActive": true,
+      "createdAt": "2025-09-09T10:18:26.193Z",
       "enrolledStudents": 0
     }
   ],
@@ -295,7 +326,7 @@
     {
       "id": "2",
       "courseId": "1",
-      "userId": "0",
+      "userId": null,
       "userName": "Ahmet Demircan",
       "userEmail": "john@example.com",
       "rating": 4,
@@ -317,7 +348,7 @@
     {
       "id": "4",
       "courseId": "3",
-      "userId": "0",
+      "userId": null,
       "userName": "Ahmet Demircan",
       "userEmail": "john@example.com",
       "rating": 4,
@@ -339,7 +370,7 @@
     {
       "id": "6",
       "courseId": "5",
-      "userId": "0",
+      "userId": null,
       "userName": "Ahmet Demircan",
       "userEmail": "john@example.com",
       "rating": 4,

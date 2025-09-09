@@ -1,6 +1,6 @@
 <nav>
   <div class="navbar-brand">
-    <a routerLink="/cursus">
+    <a routerLink="/Courses">
       <h1>Ludus Magnus</h1>
     </a>
   </div>
@@ -10,12 +10,14 @@
     
     <!-- Sadece admin'lere görünür -->
     @if (authService.isAdmin()) {
-      
+      <button class="admin-settings-btn" routerLink="/admin-panel" title="Admin Panel">
+        ⚙️
+      </button>
     }
     
     <!-- listeye yazılan herhangi rol'lere görünür -->
     @if (authService.hasAnyRole(['teacher'])) {
-      <a routerLink="/teacher-panel">teacher panel</a>
+      
     }
     
     <!-- Sadece student'lara görünür -->
@@ -67,7 +69,7 @@
         @if (!authService.isLoggedIn()) {
           <a routerLink="/login" class="dropdown-item" (click)="closeDropdown()">log in</a>
           <a routerLink="/register" class="dropdown-item" (click)="closeDropdown()">sign up</a>
-          <a routerLink="/cursus" class="dropdown-item" (click)="closeDropdown()">courses</a>
+          <a routerLink="/Courses" class="dropdown-item" (click)="closeDropdown()">courses</a>
         }
         @if (authService.isLoggedIn()) {
           <!-- Öğrenci için My Courses linki -->
@@ -80,7 +82,7 @@
           }
           <!-- Admin için Admin Panel linki -->
           @if (authService.isAdmin()) {
-            <a routerLink="/admin" class="dropdown-item" (click)="closeDropdown()">admin panel</a>
+            <a routerLink="/admin-panel" class="dropdown-item" (click)="closeDropdown()">admin panel</a>
           }
           <button class="dropdown-item logout-btn" (click)="logout()">log out</button>
         }

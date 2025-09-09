@@ -1,4 +1,4 @@
-import { ICursus, CursusLevel, CATEGORY_OPTIONS } from '../models/ICursus';
+import { ICourses, CursusLevel, CATEGORY_OPTIONS } from '../models/Icourses';
 
 export class ValidCurs {
     // Kurs başlığı validasyonu
@@ -126,7 +126,7 @@ export class ValidCurs {
     }
 
     // Tüm kurs verilerini validate eden ana metod
-    static validateCursus(cursus: Partial<ICursus>): { isValid: boolean; messages: string[] } {
+    static validateCursus(cursus: Partial<ICourses>): { isValid: boolean; messages: string[] } {
         const messages: string[] = [];
         let isValid = true;
 

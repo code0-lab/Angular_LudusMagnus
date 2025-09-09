@@ -1,12 +1,11 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { UserUrl, CursusUrl, CommentUrl, EnrollUrl } from '../Utils/apiUrl'; // CursusUrl eklendi
+import { UserUrl, CoursesUrl, CommentUrl, EnrollUrl } from '../Utils/apiUrl'; // CursusUrl eklendi
 import { Observable, switchMap, throwError } from 'rxjs'; // switchMap ve throwError eklendi
 import { IUser } from '../models/IUser';
-import { ICursus } from '../models/ICursus'; // ICursus eklendi
+import { ICourses } from '../models/Icourses'; 
 import { IComment } from '../models/IComment';
 import { IEnroll } from '../models/IEnroll';
-import { User } from '../Pages/user/user';
 
 @Injectable({
   providedIn: 'root'
@@ -16,12 +15,12 @@ export class Api {
 
   // Tüm kullanıcıları getir
   getUsers(): Observable<IUser[]> {
-    return this.http.get<IUser[]>(UserUrl.Ushers);
+    return this.http.get<IUser[]>(UserUrl.users);
   }
 
   // Tek bir kullanıcı getir
-  getUser(id: number): Observable<IUser> {
-    return this.http.get<IUser>(`${UserUrl.Ushers}/${id}`);
+  getUser(id: string): Observable<IUser> { // number yerine string
+    return this.http.get<IUser>(`${UserUrl.users}/${id}`);
   }
 
   // Belirli parametrelerle kullanıcıları getir (başarısız json server ile uyumsuz)
@@ -37,7 +36,7 @@ export class Api {
 
   //Kullanıcı ekle (mevcut - basit versiyon)
   addUser(user: IUser): Observable<IUser> {
-    return this.http.post<IUser>(UserUrl.Ushers, user);
+    return this.http.post<IUser>(UserUrl.users, user);
   }
 
   // Kullanıcı ekle (validation ile - YENİ)
@@ -57,47 +56,60 @@ export class Api {
         // }
 
         // Validation geçtiyse kullanıcıyı ekle
-        return this.http.post<IUser>(UserUrl.Ushers, user);
+        return this.http.post<IUser>(UserUrl.users, user);
       })
     );
   }
 
   // Tüm kursları getir - DÜZELTİLDİ
-  getCursus(): Observable<ICursus[]> {
-    return this.http.get<ICursus[]>(CursusUrl.Cursus);
+  getCourses(): Observable<ICourses[]> {
+    return this.http.get<ICourses[]>(CoursesUrl.Courses);
   }
 
   // Tek bir kurs getir
-  getCursusById(id: string): Observable<ICursus> {
-    return this.http.get<ICursus>(`${CursusUrl.Cursus}/${id}`);
+  getCoursesById(id: string): Observable<ICourses> {
+    return this.http.get<ICourses>(`${CoursesUrl.Courses}/${id}`);
   }
 
   // Seviyeye göre kursları getir
-  getCursusByLevel(level: string): Observable<ICursus[]> {
-    return this.http.get<ICursus[]>(`${CursusUrl.Cursus}?level=${level}`);
+  getCoursesByLevel(level: string): Observable<ICourses[]> {
+    return this.http.get<ICourses[]>(`${CoursesUrl.Courses}?level=${level}`);
   }
 
   // Aktif kursları getir
-  getActiveCursus(): Observable<ICursus[]> {
-    return this.http.get<ICursus[]>(`${CursusUrl.Cursus}?isActive=true`);
+  getActiveCourses(): Observable<ICourses[]> {
+    return this.http.get<ICourses[]>(`${CoursesUrl.Courses}?isActive=true`);
   }
   // Kurs ekle
-  addCursus(cursus: ICursus): Observable<ICursus> {
-    return this.http.post<ICursus>(CursusUrl.Cursus, cursus);
+  addCourse(Courses: ICourses): Observable<ICourses> {
+    return this.http.post<ICourses>(CoursesUrl.Courses, Courses);
   }
+  // Kurs güncelle
+  updateCourses(id: string, Courses: ICourses): Observable<ICourses> {
+    return this.http.put<ICourses>(`${CoursesUrl.Courses}/${id}`, Courses);
+  }
+
+  // Kurs sil
+  deleteCursus(id: string): Observable<void> {
+    return this.http.delete<void>(`${CoursesUrl.Courses}/${id}`);
+  }
+// Kullanıcının oluşturduğu kursları getir (createdById ile)
+getCursusByCreator(createdById: string): Observable<ICourses[]> {
+  return this.http.get<ICourses[]>(`${CoursesUrl.Courses}?createdById=${createdById}`);
+}
 
   // Kurs ara
 // Kurs ara - title ve description'da arama yap
-searchCursus(query: string): Observable<ICursus[]> {
+searchCourses(query: string): Observable<ICourses[]> {
 console.log('API search query:', query);
   // json-server'da q parametresi full-text search yapar
-  return this.http.get<ICursus[]>(`${CursusUrl.Cursus}?q=${query}`);
+  return this.http.get<ICourses[]>(`${CoursesUrl.Courses}?q=${query}`);
 }
 
   // Kursu kullanıcının profiline kaydet
   saveCourse(userId: string, courseId: string): Observable<IUser> {
     // Önce kullanıcıyı getir
-    return this.http.get<IUser>(`${UserUrl.Ushers}/${userId}`).pipe(
+    return this.http.get<IUser>(`${UserUrl.users}/${userId}`).pipe(
       switchMap(user => {
         // savedCourses dizisi yoksa oluştur kullanıcı oluşturma fonksiyonuna bu kısmı eklemedik:))
         // Bundan dolayı bu fonksiyon hiç kullanılmamış ise savedCourses dizisi oluşmaz.
@@ -111,7 +123,7 @@ console.log('API search query:', query);
         }
         
         // Kullanıcıyı güncelle
-        return this.http.put<IUser>(`${UserUrl.Ushers}/${userId}`, user);
+        return this.http.put<IUser>(`${UserUrl.users}/${userId}`, user);
       })
     );
   }
@@ -119,11 +131,11 @@ console.log('API search query:', query);
   // Kursu kullanıcının profiline sil olmayan dosya zaten silinmez dolayısı ile ek kontole gerek yon
   removeCourse(userId: string, courseId: string): Observable<IUser> {
     // Önce kullanıcıyı getir
-    return this.http.get<IUser>(`${UserUrl.Ushers}/${userId}`).pipe(
+    return this.http.get<IUser>(`${UserUrl.users}/${userId}`).pipe(
       switchMap(user => {
           user.savedCourses = user.savedCourses?.filter(id => id !== courseId) || [];
         // Kullanıcıyı güncelle
-        return this.http.put<IUser>(`${UserUrl.Ushers}/${userId}`, user);
+        return this.http.put<IUser>(`${UserUrl.users}/${userId}`, user);
       })
     );
   }
@@ -131,7 +143,7 @@ console.log('API search query:', query);
   //Login
 
   userLogin(username: string, password: string) {
-    return this.http.get<IUser[]>(`${UserUrl.Ushers}?email=${username}&password=${password}`);
+    return this.http.get<IUser[]>(`${UserUrl.users}?email=${username}&password=${password}`);
   }
 
   // Yorumlar için API metodları
@@ -174,6 +186,13 @@ console.log('API search query:', query);
 
   // Kullanıcı güncelle
   updateUser(id: string, user: IUser): Observable<IUser> {
-    return this.http.put<IUser>(`${UserUrl.Ushers}/${id}`, user);
+    return this.http.put<IUser>(`${UserUrl.users}/${id}`, user);
+  }
+
+  // Kullanıcı sil
+  deleteUser(id: string): Observable<void> {
+    return this.http.delete<void>(`${UserUrl.users}/${id}`);
   }
 }
+
+

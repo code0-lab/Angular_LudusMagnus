@@ -85,11 +85,15 @@ export class Register {
     this.isLoading = true;
     
     const newUser: IUser = {
-      id: 0, // JSON Server otomatik atayacak
+      // id atamıyoruz, JSON Server otomatik atayacak
       name: this.formModel.name.trim(),
       email: this.formModel.email.trim().toLowerCase(),
       password: this.formModel.password,
-      role: this.formModel.role as 'teacher' | 'student'
+      role: this.formModel.role as 'teacher' | 'student',
+      createdAt: new Date().toISOString(),
+      isActive: this.formModel.role === 'student', // Öğretmen rolü de aktif başlar onay gerektirir
+      courseIds: [],
+      savedCourses: []
     };
     
     this.api.addUserWithValidation(newUser).subscribe({

@@ -1,5 +1,5 @@
 export interface IUser {
-  id: number;
+  id?: string; // Optional ve string yapıldı
   name: string;
   email: string;
   password: string;
@@ -35,7 +35,7 @@ export function createEmptyRegisterModel(): IRegisterModel {
 // Factory function - Yeni kullanıcı oluşturmak için
 export function createEmptyUser(): IUser {
   return {
-    id: 0,
+    // id: undefined, // JSON Server otomatik atayacak
     name: '',
     email: '',
     password: '',

@@ -15,7 +15,7 @@ export class AdminGuard implements CanActivate {
   canActivate(): boolean {
     // Önce kullanıcının giriş yapmış olup olmadığını kontrol et
     if (!this.authService.isLoggedIn()) {
-      this.router.navigate(['/']);
+      this.router.navigate(['/unauthorized']);
       return false;
     }
 
@@ -25,7 +25,7 @@ export class AdminGuard implements CanActivate {
     }
 
     // Yetkisiz erişim - ana sayfaya yönlendir
-    this.router.navigate(['/']);
+    this.router.navigate(['/unauthorized']);
     alert('You are not authorized to access this page.');
     return false;
   }

@@ -31,29 +31,38 @@ export class AuthService {
   login(email: string, password: string): Observable<boolean> {
     return this.http.get<IUser[]>(`${this.apiUrl}?email=${email}&password=${password}`).pipe(
       switchMap(users => {
-        if (users && users.length > 0) {
+        if (users.length > 0) {
           const user = users[0];
           
-          // Token oluştur ve sonucunu bekle
+          // ID kontrolü ekle
+          if (!user.id) {
+            console.error('User ID is missing');
+            return of(false);
+          }
+          
+          // aktifmi diye kontrol et
+          if (user.isActive === false) {
+            console.error('User account is inactive');
+            return of(false);
+          }
+          
+          // Token oluştur - ID artık string olduğu için Number() kaldırıldı
           return this.tokenService.generateToken(user.id).pipe(
-            map(token => {
-              if (!isPlatformBrowser(this.platformId)) {
-                return false;
-              }
-              
+            map(tokenResponse => {
               // Kullanıcı bilgilerini kaydet
-              localStorage.setItem('currentUser', JSON.stringify(user));
-              localStorage.setItem('authToken', token.token);
-              
-              // State'i güncelle
               this.currentUserSubject.next(user);
               this.isAuthenticatedSubject.next(true);
               
-              console.log('Login başarılı, token oluşturuldu:', token.token);
+              // localStorage'a kaydet (sadece browser'da)
+              if (isPlatformBrowser(this.platformId)) {
+                localStorage.setItem('currentUser', JSON.stringify(user));
+                localStorage.setItem('authToken', tokenResponse.token);
+              }
+              
               return true;
             }),
             catchError(error => {
-              console.error('Token oluşturma hatası:', error);
+              console.error('Token generation failed:', error);
               return of(false);
             })
           );
@@ -62,7 +71,7 @@ export class AuthService {
         }
       }),
       catchError(error => {
-        console.error('Login hatası:', error);
+        console.error('Login failed:', error);
         return of(false);
       })
     );
@@ -71,7 +80,7 @@ export class AuthService {
   // Çıkış yap
   logout(): void {
     const currentUser = this.currentUserSubject.value;
-    if (currentUser) {
+    if (currentUser && currentUser.id) {
       // Kullanıcının tüm token'larını sil
       this.tokenService.deleteUserTokens(currentUser.id).subscribe();
     }
@@ -105,24 +114,22 @@ export class AuthService {
 
   // Mevcut token'ı doğrula
   validateCurrentToken(): Observable<boolean> {
-    if (!isPlatformBrowser(this.platformId)) {
+    const currentUser = this.getCurrentUser();
+    if (!currentUser || !currentUser.id || !isPlatformBrowser(this.platformId)) {
       return of(false);
     }
-    
+  
     const token = localStorage.getItem('authToken');
     if (!token) {
       return of(false);
     }
-
-    return this.tokenService.validateToken(token).pipe(
-      map(tokenData => {
-        if (tokenData) {
-          return true;
-        } else {
-          // Token geçersiz, çıkış yap
+  
+    return this.tokenService.validateToken(token, currentUser.id).pipe(
+      map(isValid => {
+        if (!isValid) {
           this.logout();
-          return false;
         }
+        return isValid;
       }),
       catchError(() => {
         this.logout();
@@ -134,10 +141,11 @@ export class AuthService {
   // Token yenile
   refreshToken(): Observable<boolean> {
     const currentUser = this.getCurrentUser();
-    if (!currentUser || !isPlatformBrowser(this.platformId)) {
+    if (!currentUser || !currentUser.id || !isPlatformBrowser(this.platformId)) {
       return of(false);
     }
-
+  
+    // ID artık string olduğu için direkt kullanılıyor
     return this.tokenService.generateToken(currentUser.id).pipe(
       map(newToken => {
         localStorage.setItem('authToken', newToken.token);
@@ -153,20 +161,37 @@ export class AuthService {
     if (!isPlatformBrowser(this.platformId)) {
       return;
     }
-
+  
     const storedUser = localStorage.getItem('currentUser');
     const storedToken = localStorage.getItem('authToken');
-    
+  
     if (storedUser && storedToken) {
       try {
-        const user = JSON.parse(storedUser);
-        this.currentUserSubject.next(user);
-        this.isAuthenticatedSubject.next(true);
+        const user: IUser = JSON.parse(storedUser);
         
-        // Token'ın hala geçerli olup olmadığını kontrol et
-        this.validateCurrentToken().subscribe();
+        // ID kontrolü ekle
+        if (!user.id) {
+          console.error('Stored user ID is missing');
+          this.logout();
+          return;
+        }
+        
+        // Token'ı doğrula
+        this.tokenService.validateToken(storedToken, user.id).subscribe({
+          next: (isValid) => {
+            if (isValid) {
+              this.currentUserSubject.next(user);
+              this.isAuthenticatedSubject.next(true);
+            } else {
+              this.logout();
+            }
+          },
+          error: () => {
+            this.logout();
+          }
+        });
       } catch (error) {
-        console.error('Stored auth data parse error:', error);
+        console.error('Error parsing stored user data:', error);
         this.logout();
       }
     }

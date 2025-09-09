@@ -40,14 +40,37 @@
               <span class="menu-icon">🛡️</span>
               <span class="menu-text">Privacy & Security</span>
             </li>
-            <li class="menu-item" [class.active]="activeSection === 'courses'" (click)="setActiveSection('courses')">
-              <span class="menu-icon">📚</span>
-              <span class="menu-text">My Courses</span>
-            </li>
+            
+            <!-- Rol bazlı kurs sekmesi -->
+            @if (isAdmin()) {
+              <li class="menu-item admin-panel-item" (click)="navigateToAdminPanel()">
+                <span class="menu-icon">⚙️</span>
+                <span class="menu-text">Direct to: Admin Panel →</span>
+              </li>
+            } @else if (isTeacher()) {
+              <li class="menu-item teacher-panel-item" (click)="navigateToTeacherPanel()">
+                <span class="menu-icon">🎓</span>
+                <span class="menu-text">Direct to: Teacher Panel →</span>
+              </li>
+            } @else {
+              <li class="menu-item" [class.active]="activeSection === 'courses'" (click)="setActiveSection('courses')">
+                <span class="menu-icon">📚</span>
+                <span class="menu-text">My Courses</span>
+              </li>
+            }
+            
             <li class="menu-item" [class.active]="activeSection === 'notifications'" (click)="setActiveSection('notifications')">
               <span class="menu-icon">🔔</span>
               <span class="menu-text">Notifications</span>
             </li>
+
+            <!-- Profil Silme - Sadece Teacher ve Student için ve adminle dalga geçmek için -->
+            @if (currentUser?.role === 'teacher' || currentUser?.role === 'student' || currentUser?.role === 'admin') {
+              <li class="menu-item danger-menu-item" (click)="deleteProfile()">
+                <span class="menu-icon">⚠️</span>
+                <span class="menu-text">Delete Profile</span>
+              </li>
+            }
           </ul>
         </nav>
       </div>

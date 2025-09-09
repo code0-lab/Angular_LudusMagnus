@@ -38,7 +38,7 @@ export class Login {
    */
   userLogin() {
     if (!this.email || !this.password) {
-      this.error = 'Email ve şifre alanları zorunludur';
+      this.error = 'Email and password fields are required.';
       this.cdr.detectChanges();
       return;
     }
@@ -58,19 +58,19 @@ export class Login {
           if (user) {
             switch (user.role) {
               case 'admin':
-                this.router.navigate(['/admin']);
+                this.router.navigate(['/admin-panel']);
                 break;
               case 'teacher':
                 this.router.navigate(['/teacher-panel']);
                 break;
               case 'student':
-                this.router.navigate(['/cursus']);
+                this.router.navigate(['/Courses']);
                 break;
               default:
-                this.router.navigate(['/cursus']);
+                this.router.navigate(['/Courses']);
             }
           } else {
-            this.router.navigate(['/cursus']);
+            this.router.navigate(['/Courses']);
           }
         } else {
           this.error = 'Email or password is incorrect';

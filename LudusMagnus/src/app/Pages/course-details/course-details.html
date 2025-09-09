@@ -1,11 +1,6 @@
 <div class="course-details-container">
-  <!-- Geri dönüş butonu -->
-  <div class="back-navigation">
-    <button class="back-btn" routerLink="/cursus">
-      <span class="back-icon">←</span>
-      <span>Back to Courses</span>
-    </button>
-  </div>
+  <!-- Geri dönüş butonu (iptal birden çok sayfada var nereye götüreceğini tespit etmek ek yük getirir)-->
+ 
 
   @if (details && details.id) {
     <!-- Ana kurs detay kartı -->
@@ -69,7 +64,7 @@
         </div>
 
         <div class="registration-actions">
-          @if (details.isActive && authService.isLoggedIn()) {
+          @if (details.isActive && authService.isLoggedIn() && !authService.isTeacher() && !authService.isAdmin()) {
             <button class="btn btn-primary btn-large" [routerLink]="['/enroll-curs', details.id]">
               <span class="btn-icon">🎓</span>
               Enroll Now
@@ -88,6 +83,10 @@
               <span class="btn-icon">🔐</span>
               Login to Enroll
             </button>
+          } @else if (details.isActive && (authService.isTeacher() || authService.isAdmin())) {
+            <div class="instructor-info">
+              <span class="instructor-badge">{{ authService.isAdmin() ? 'Admin' : 'Instructor' }} View</span>
+            </div>
           } @else {
             <button class="btn btn-disabled btn-large" disabled>
               <span class="btn-icon">⏸️</span>

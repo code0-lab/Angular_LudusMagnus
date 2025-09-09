@@ -1,11 +1,11 @@
 
 
 export const UserUrl = {
-    Ushers: 'http://localhost:3000/users'
+    users: 'http://localhost:3000/users'
 }
 
-export const CursusUrl = {
-    Cursus: 'http://localhost:3000/courses'
+export const CoursesUrl = {
+    Courses: 'http://localhost:3000/courses'
 }
 
 export const CommentUrl = {

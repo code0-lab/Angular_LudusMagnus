@@ -2,7 +2,7 @@ import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { RouterModule } from '@angular/router';
 import { Api } from '../../services/api';
-import { ICursus } from '../../models/ICursus';
+import { ICourses } from '../../models/Icourses';
 import { CommonModule } from '@angular/common';
 import { AuthService } from '../../services/auth.service';
 import { IComment } from '../../models/IComment';
@@ -15,7 +15,7 @@ import { IComment } from '../../models/IComment';
   styleUrl: './course-details.css'
 })
 export class CourseDetails implements OnInit {
-  details: ICursus = {} as ICursus;
+  details: ICourses = {} as ICourses;
   comments: IComment[] = [];
   courseId: string | null = null;
   isLoading: boolean = true;
@@ -33,19 +33,21 @@ export class CourseDetails implements OnInit {
   ngOnInit(): void {
     this.courseId = this.route.snapshot.paramMap.get('id');
     //console.log('Course ID:', this.courseId);
-    this.userId = this.authService.getCurrentUser()?.id.toString() || null;
+    this.userId = this.authService.getCurrentUser()?.id || null;
     //console.log('User ID:', this.userId);
     this.isSaved();
     
     if (this.courseId) {
-      this.loadCourseDetails(+this.courseId); // + operatörü ile string'i number'a çevir
+      // String ID'yi direkt kullan, number'a çevirmeye gerek yok
+      this.loadCourseDetails(this.courseId);
       this.loadComments(this.courseId);
     }
   }
 
-  loadCourseDetails(id: number): void {
+  // loadCourseDetails metodunu da güncelleyelim
+  loadCourseDetails(id: string): void {
     //this.isLoading = true;
-    this.api.getCursusById(id.toString()).subscribe({
+    this.api.getCoursesById(id).subscribe({
       next: (course) => {
         this.details = course;
         this.isLoading = false;
@@ -55,8 +57,8 @@ export class CourseDetails implements OnInit {
       error: (error) => {
         console.error('Kurs detayları yüklenirken hata oluştu:', error);
         this.isLoading = false;
-      }
-      ,
+        this.cd.detectChanges();
+      },
       complete: () => {
         this.isLoading = false;
         this.cd.detectChanges();
@@ -133,7 +135,7 @@ export class CourseDetails implements OnInit {
   //save control kurs giriş yapmış kullanıcının savedcurs kısmında kyıtlı mı?
   isSaved(): void {
     if (this.userId) {
-      this.api.getUser(+this.userId).subscribe({
+      this.api.getUser(this.userId).subscribe({
         next: (user) => {
           console.log('User details:', user);
           if (user.savedCourses?.includes(this.courseId!)) {
