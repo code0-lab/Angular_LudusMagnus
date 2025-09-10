@@ -69,11 +69,11 @@
   ],
   "tokens": [
     {
-      "id": "9b1d",
-      "token": "HSfoAgB5MKVMO0OdeuYkrkhnFZlj0sWrXFKZVvoyHgYQDZMrIWa66d6qamb5IgBa",
+      "id": "d64d",
+      "token": "NVXt2EKaUTqTYONOy6Vr4QUOQPCRV90nNq1cqdUfXpiShz6gr0yzV3HxXNLxG9df",
       "userId": "3",
-      "expiresAt": "2025-09-09T13:11:38.278Z",
-      "createdAt": "2025-09-09T12:11:38.278Z"
+      "expiresAt": "2025-09-10T17:11:26.842Z",
+      "createdAt": "2025-09-10T16:11:26.842Z"
     }
   ],
   "courses": [
@@ -376,6 +376,50 @@
       "rating": 4,
       "comment": "Modern JavaScript özelliklerini öğrenmek için harika bir kaynak. ES6+ özelliklerini çok iyi açıklıyor.",
       "createdAt": "2024-04-10T15:00:00Z",
+      "isApproved": true
+    },
+    {
+      "id": "d0",
+      "courseId": "7",
+      "userId": "3",
+      "userName": "Student User",
+      "userEmail": "student@ludusmagnus.com",
+      "rating": 5,
+      "comment": "the best",
+      "createdAt": "2025-09-10T16:11:54.685Z",
+      "isApproved": true
+    },
+    {
+      "id": "d2",
+      "courseId": "7",
+      "userId": "3",
+      "userName": "Student User",
+      "userEmail": "student@ludusmagnus.com",
+      "rating": 5,
+      "comment": "At the top...",
+      "createdAt": "2025-09-10T16:12:43.734Z",
+      "isApproved": true
+    },
+    {
+      "id": "d1",
+      "courseId": "9",
+      "userId": "3",
+      "userName": "Student User",
+      "userEmail": "student@ludusmagnus.com",
+      "rating": 5,
+      "comment": "deneme",
+      "createdAt": "2025-09-10T16:14:31.067Z",
+      "isApproved": true
+    },
+    {
+      "id": "218e",
+      "courseId": "9",
+      "userId": "3",
+      "userName": "Student User",
+      "userEmail": "student@ludusmagnus.com",
+      "rating": 5,
+      "comment": "d",
+      "createdAt": "2025-09-10T17:03:06.313Z",
       "isApproved": true
     }
   ]

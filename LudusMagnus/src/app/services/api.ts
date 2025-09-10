@@ -159,6 +159,21 @@ console.log('API search query:', query);
     return this.http.get<IComment[]>(`${CommentUrl.Comments}`);
   }
 
+  // Yorum güncelle
+  updateComment(id: string, comment: IComment): Observable<IComment> {
+    return this.http.put<IComment>(`${CommentUrl.Comments}/${id}`, comment);
+  }
+
+  // Yorum sil
+  deleteComment(id: string): Observable<void> {
+    return this.http.delete<void>(`${CommentUrl.Comments}/${id}`);
+  }
+
+  // Kullanıcının yorumlarını getir
+  getCommentsByUserId(userId: string): Observable<IComment[]> {
+    return this.http.get<IComment[]>(`${CommentUrl.Comments}?userId=${userId}`);
+  }
+
   // Enrollments için API metodları
   getEnrollments(): Observable<IEnroll[]> {
     return this.http.get<IEnroll[]>(`${EnrollUrl.Enrollments}`);

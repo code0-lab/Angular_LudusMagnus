@@ -108,7 +108,53 @@
 
     <!-- Yorumlar bölümü -->
     <div class="comments-section">
-      <h2 class="section-title">Student Reviews ({{ comments.length }})</h2>
+      <div class="comments-header">
+        <h2 class="section-title">Student Reviews ({{ comments.length }})</h2>
+        @if (authService.isLoggedIn()) {
+          <button class="add-comment-btn" (click)="toggleCommentForm()">
+            {{ showCommentForm ? 'İptal Et' : 'Yorum Yaz' }}
+          </button>
+        }
+      </div>
+
+      <!-- Yorum Ekleme Formu -->
+      @if (showCommentForm) {
+        <div class="comment-form">
+          <h3>{{ editingComment ? 'Yorumu Düzenle' : 'Yorum Yaz' }}</h3>
+          <form (ngSubmit)="submitComment()">
+            <div class="form-group">
+              <label for="rating">Puan (1-5):</label>
+              <select id="rating" [(ngModel)]="newComment.rating" name="rating" class="form-control" required>
+                <option value="1">1 - Not nicey</option>
+                <option value="2">2 - Almost Nicey</option>
+                <option value="3">3 - Likely Nice</option>
+                <option value="4">4 - Nice</option>
+                <option value="5">5 - Nicer</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label for="comment">Comment:</label>
+              <textarea 
+                id="comment" 
+                [(ngModel)]="newComment.comment" 
+                name="comment" 
+                class="form-control" 
+                rows="4" 
+                placeholder="Share your thoughts about the course..."
+                required>
+              </textarea>
+            </div>
+            <div class="form-actions">
+              <button type="submit" class="btn btn-primary" [disabled]="isSubmittingComment">
+                {{ isSubmittingComment ? 'Sending...' : (editingComment ? 'Update' : 'Send') }}
+              </button>
+              <button type="button" class="btn btn-secondary" (click)="cancelEdit()">
+                Cancel
+              </button>
+            </div>
+          </form>
+        </div>
+      }
       
       @if (isLoadingComments) {
         <div class="loading-comments">
@@ -138,6 +184,16 @@
               </div>
               <div class="comment-body">
                 <p class="comment-text">{{ comment.comment }}</p>
+                @if (isUserComment(comment)) {
+                  <div class="comment-actions">
+                    <button class="btn-edit" (click)="editComment(comment)" title="Düzenle">
+                      ✏️
+                    </button>
+                    <button class="btn-delete" (click)="deleteComment(comment)" title="Sil">
+                      🗑️
+                    </button>
+                  </div>
+                }
               </div>
             </div>
           }

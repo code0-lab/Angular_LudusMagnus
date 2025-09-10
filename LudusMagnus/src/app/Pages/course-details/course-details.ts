@@ -5,12 +5,13 @@ import { Api } from '../../services/api';
 import { ICourses } from '../../models/Icourses';
 import { CommonModule } from '@angular/common';
 import { AuthService } from '../../services/auth.service';
-import { IComment } from '../../models/IComment';
+import { IComment, createEmptyComment } from '../../models/IComment';
+import { FormsModule } from '@angular/forms';
 
 
 @Component({
   selector: 'app-course-details',
-  imports: [CommonModule, RouterModule],
+  imports: [CommonModule, RouterModule, FormsModule],
   templateUrl: './course-details.html',
   styleUrl: './course-details.css'
 })
@@ -22,6 +23,12 @@ export class CourseDetails implements OnInit {
   isLoadingComments: boolean = false;
   userId: string | null = null;
   savedCurs: boolean = false;
+  
+  // Yorum formu için değişkenler
+  showCommentForm: boolean = false;
+  newComment: IComment = createEmptyComment();
+  editingComment: IComment | null = null;
+  isSubmittingComment: boolean = false;
 
   constructor(
     private route: ActivatedRoute, 
@@ -149,5 +156,126 @@ export class CourseDetails implements OnInit {
         }
       })
     }
+  }
+
+  // Yorum formu göster/gizle
+  toggleCommentForm(): void {
+    if (!this.authService.isLoggedIn()) {
+      alert('You must be logged in to comment!');
+      return;
+    }
+    this.showCommentForm = !this.showCommentForm;
+    if (this.showCommentForm) {
+      this.resetCommentForm();
+    }
+  }
+
+  // Yorum formu sıfırla
+  resetCommentForm(): void {
+    this.newComment = createEmptyComment();
+    this.newComment.courseId = this.courseId!;
+    this.newComment.userId = this.userId!;
+    const currentUser = this.authService.getCurrentUser();
+    if (currentUser) {
+      this.newComment.userName = currentUser.name;
+      this.newComment.userEmail = currentUser.email;
+    }
+    this.editingComment = null;
+  }
+
+  // Yorum ekle
+  submitComment(): void {
+    if (!this.newComment.comment.trim() || this.newComment.rating < 1 || this.newComment.rating > 5) {
+      alert('Please enter a valid comment and rating (1-5)!');
+      return;
+    }
+
+    this.isSubmittingComment = true;
+    
+    if (this.editingComment) {
+      // Düzenleme modu
+      this.api.updateComment(this.editingComment.id, this.newComment).subscribe({
+        next: (updatedComment) => {
+          const index = this.comments.findIndex(c => c.id === updatedComment.id);
+          if (index !== -1) {
+            this.comments[index] = updatedComment;
+          }
+          this.resetCommentForm();
+          this.showCommentForm = false;
+          this.isSubmittingComment = false;
+          this.cd.detectChanges();
+          alert('Your comment has been updated successfully!');
+        },
+        error: (error) => {
+          console.error('Yorum güncellenirken hata oluştu:', error);
+          this.isSubmittingComment = false;
+          alert('An error occurred while updating the comment!');
+        }
+      });
+    } else {
+      // Yeni yorum ekleme
+      const commentToAdd = {
+        courseId: this.newComment.courseId,
+        userId: this.newComment.userId,
+        userName: this.newComment.userName,
+        userEmail: this.newComment.userEmail,
+        rating: this.newComment.rating,
+        comment: this.newComment.comment,
+        createdAt: new Date().toISOString(),
+        isApproved: true
+      };
+      
+      this.api.addComment(commentToAdd as IComment).subscribe({
+        next: (addedComment) => {
+          this.comments.push(addedComment);
+          this.resetCommentForm();
+          this.showCommentForm = false;
+          this.isSubmittingComment = false;
+          this.cd.detectChanges();
+          alert('Your comment has been added successfully!');
+        },
+        error: (error) => {
+          console.error('Yorum eklenirken hata oluştu:', error);
+          this.isSubmittingComment = false;
+          alert('An error occurred while adding a comment!');
+        }
+      });
+    }
+  }
+
+  // Yorum düzenle
+  editComment(comment: IComment): void {
+    this.editingComment = comment;
+    this.newComment = { ...comment };
+    this.showCommentForm = true;
+    this.cd.detectChanges();
+  }
+
+  // Yorum sil
+  deleteComment(comment: IComment): void {
+    if (confirm('Bu yorumu silmek istediğinizden emin misiniz?')) {
+      this.api.deleteComment(comment.id).subscribe({
+        next: () => {
+          this.comments = this.comments.filter(c => c.id !== comment.id);
+          this.cd.detectChanges();
+          alert('Comment deleted successfully!');
+        },
+        error: (error) => {
+          console.error('Yorum silinirken hata oluştu:', error);
+          alert('An error occurred while deleting the comment!');
+        }
+      });
+    }
+  }
+
+  // Kullanıcının kendi yorumu mu kontrol et
+  isUserComment(comment: IComment): boolean {
+    return this.userId === comment.userId;
+  }
+
+  // Yorum düzenleme iptal et
+  cancelEdit(): void {
+    this.resetCommentForm();
+    this.showCommentForm = false;
   }
 }

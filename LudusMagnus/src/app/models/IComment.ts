@@ -13,7 +13,7 @@ export interface IComment {
 // Factory function - Yeni yorum oluşturmak için
 export function createEmptyComment(): IComment {
   return {
-    id: '',
+    id: '0', 
     courseId: '',
     userId: '',
     userName: '',

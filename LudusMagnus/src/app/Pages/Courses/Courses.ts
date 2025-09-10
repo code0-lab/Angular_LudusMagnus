@@ -33,7 +33,7 @@ export class Courses implements OnInit { //yarı türkçe yarı ingilizce olduğ
 
   ngOnInit(): void {
     this.loadCursus();
-    this.checkRole(); // bu unutulduğu için html de bulunması gereken + gelmiyordu :)
+    this.checkRole(); // bu unutulduğu için html de bulunması gereken sayfa yönlendirme butonu gelmiyordu :)
   }
 
   // Kullanıcı rolünü kontrol et

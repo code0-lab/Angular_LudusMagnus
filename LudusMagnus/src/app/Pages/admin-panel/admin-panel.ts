@@ -70,7 +70,7 @@ export class AdminPanel implements OnInit {
   loadAllData(): void {
     this.isLoading = true;
     
-    forkJoin({
+    forkJoin({ //birden fazla asenkron işlemi aynı anda başlatıp, tüm işlemlerin tamamlanmasını bekledikten sonra sonuçlarını tek bir grup olarak işlemek için kullanılan bir RxJS operatörü.
       users: this.api.getUsers(),
       courses: this.api.getCourses(),
       comments: this.api.getAllComments(),
