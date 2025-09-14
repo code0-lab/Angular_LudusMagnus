@@ -50,22 +50,22 @@ Aşağıda uygulamanın farklı bölümlerine ait ekran görüntülerini görebi
 
 Bu ekran, eğitmenlerin kendi kurslarını yönetebildiği ve yeni kurslar oluşturabildiği paneli göstermektedir.
 
-![Eğitmen Paneli](images/Screenshot 2025-09-14 at 18.30.44.jpg)
+![Eğitmen Paneli](images/Screenshot 2025-09-14 at 18.30.44.png)
 
 #### Profil Düzenleme
 
 Kullanıcıların kişisel bilgilerini ve tercihlerini güncelleyebildiği profil düzenleme sayfası.
 
-![Profil Düzenleme](images/Screenshot 2025-09-14 at 18.31.42.jpg)
+![Profil Düzenleme](images/Screenshot 2025-09-14 at 18.31.42.png)
 
 #### Kurs Kaydı
 
 Bu ekran, bir kursa kayıt olma veya kaydı iptal etme işlemini göstermektedir.
 
-![Kurs Kaydı](images/Screenshot 2025-09-14 at 18.51.26.jpg)
+![Kurs Kaydı](images/Screenshot 2025-09-14 at 18.51.26.png)
 
 #### Kurslar (Mobil Görünüm)
 
 Uygulamanın mobil cihazlardaki responsive (duyarlı) görünümü.
 
-![Kurslar Mobil Görünüm](images/Screenshot 2025-09-14 at 18.40.26.jpg)
+![Kurslar Mobil Görünüm](images/Screenshot 2025-09-14 at 18.40.26.png)
