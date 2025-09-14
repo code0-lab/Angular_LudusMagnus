@@ -65,7 +65,7 @@
 
         <div class="registration-actions">
           @if (details.isActive && authService.isLoggedIn() && !authService.isTeacher() && !authService.isAdmin()) {
-            <button class="btn btn-primary btn-large" [routerLink]="['/enroll-curs', details.id]">
+            <button class="btn btn-primary btn-large" [routerLink]="['/enroll-Course', details.id]">
               <span class="btn-icon">🎓</span>
               Enroll Now
             </button>
@@ -112,7 +112,7 @@
         <h2 class="section-title">Student Reviews ({{ comments.length }})</h2>
         @if (authService.isLoggedIn()) {
           <button class="add-comment-btn" (click)="toggleCommentForm()">
-            {{ showCommentForm ? 'İptal Et' : 'Yorum Yaz' }}
+            {{ showCommentForm ? 'Cancel' : 'Comment' }}
           </button>
         }
       </div>
@@ -120,7 +120,7 @@
       <!-- Yorum Ekleme Formu -->
       @if (showCommentForm) {
         <div class="comment-form">
-          <h3>{{ editingComment ? 'Yorumu Düzenle' : 'Yorum Yaz' }}</h3>
+          <h3>{{ editingComment ? 'Edit your Comment' : 'Comment' }}</h3>
           <form (ngSubmit)="submitComment()">
             <div class="form-group">
               <label for="rating">Puan (1-5):</label>

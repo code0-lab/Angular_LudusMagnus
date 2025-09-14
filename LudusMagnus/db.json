@@ -49,7 +49,8 @@
       ],
       "savedCourses": [
         "10",
-        "5"
+        "5",
+        "7"
       ]
     },
     {
@@ -65,15 +66,28 @@
       "email": "has@hast.mail.com",
       "password": "sirje9-nImjum-mygbit",
       "role": "student"
+    },
+    {
+      "id": "74ec",
+      "name": "Deneme Kullanıcısı",
+      "email": "john@example.com",
+      "password": "nUswi6-nyfzox-netryb",
+      "role": "student",
+      "createdAt": "2025-09-14T15:43:32.529Z",
+      "isActive": true,
+      "courseIds": [
+        "2"
+      ],
+      "savedCourses": []
     }
   ],
   "tokens": [
     {
-      "id": "d64d",
-      "token": "NVXt2EKaUTqTYONOy6Vr4QUOQPCRV90nNq1cqdUfXpiShz6gr0yzV3HxXNLxG9df",
-      "userId": "3",
-      "expiresAt": "2025-09-10T17:11:26.842Z",
-      "createdAt": "2025-09-10T16:11:26.842Z"
+      "id": "6c46",
+      "token": "VAlcHr10QkMKQYJNdcg8Nse6FG1KCsf2R2GKCuYhFTkuILZT3e8NoHjg46KPqjx3",
+      "userId": "74ec",
+      "expiresAt": "2025-09-14T16:43:53.785Z",
+      "createdAt": "2025-09-14T15:43:53.785Z"
     }
   ],
   "courses": [
