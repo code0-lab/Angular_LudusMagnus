@@ -1,20 +1,22 @@
-import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef, ChangeDetectionStrategy, OnDestroy } from '@angular/core';
 import { RouterModule, Router } from '@angular/router';
 import { Api } from '../../services/api';
 import { ICourses } from '../../models/Icourses';
 import { CommonModule } from '@angular/common';
 import { AuthService } from '../../services/auth.service';
 import { FormsModule } from '@angular/forms';
+import { Subject, takeUntil } from 'rxjs';
 
 @Component({
   selector: 'app-Courses',
   imports: [FormsModule, CommonModule, RouterModule],
   templateUrl: './Courses.html',
-  styleUrl: './Courses.css'
+  styleUrl: './Courses.css',
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class Courses implements OnInit { //yarı türkçe yarı ingilizce olduğu yetmez gibi dosya adıda flamenkçe :))
+export class Courses implements OnInit, OnDestroy {
   cursus: ICourses[] = [];
-  paginatedCursus: ICourses[] = []; // Sayfalanmış kurslar
+  paginatedCursus: ICourses[] = [];
   isloading: boolean = true;
   role: boolean = false;
   isEnrolled = false;
@@ -23,6 +25,8 @@ export class Courses implements OnInit { //yarı türkçe yarı ingilizce olduğ
   currentPage: number = 1;
   cursusPerPage: number = 9;
   totalPages: number = 0;
+  
+  private destroy$ = new Subject<void>();
 
   constructor(
     private api: Api, 
@@ -31,6 +35,11 @@ export class Courses implements OnInit { //yarı türkçe yarı ingilizce olduğ
     private router: Router,
   ) {}
 
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
+  }
+
   ngOnInit(): void {
     this.loadCursus();
     this.checkRole(); // bu unutulduğu için html de bulunması gereken sayfa yönlendirme butonu gelmiyordu :)
@@ -38,14 +47,9 @@ export class Courses implements OnInit { //yarı türkçe yarı ingilizce olduğ
 
   // Kullanıcı rolünü kontrol et
   checkRole(): void {
-    if (this.authService.getUserRole() === 'admin' || this.authService.getUserRole() === 'teacher') {
-      this.role = true;
-      //console.log('Rol:', this.role);
-      this.cd.detectChanges();
-    } else {
-      this.role = false;
-      this.cd.detectChanges();
-    }
+    const userRole = this.authService.getUserRole();
+    this.role = userRole === 'admin' || userRole === 'teacher';
+    this.cd.markForCheck();
   }
 
   //Kursları say ve sayfa sayısını hesapla
@@ -98,23 +102,22 @@ export class Courses implements OnInit { //yarı türkçe yarı ingilizce olduğ
   }
 
   loadCursus(): void {
-    this.api.getCourses().subscribe({
-      next: (value) => {
-        this.cursus = value;
-        this.PageCount(); // Sayfa sayısını hesapla
-        this.getPaginatedCursus(); // İlk sayfayı yükle
-        this.cd.detectChanges();
-      },
-      error: (error) => {
-        console.error('Kurs bilgileri alınırken hata oluştu:', error);
-        this.isloading = false;
-        this.cd.detectChanges();
-      },
-      complete: () => {
-        this.isloading = false; 
-        this.cd.detectChanges();
-      }
-    });
+    this.api.getCourses()
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (value) => {
+          this.cursus = value;
+          this.PageCount();
+          this.getPaginatedCursus();
+          this.isloading = false;
+          this.cd.markForCheck();
+        },
+        error: (error) => {
+          console.error('Kurs bilgileri alınırken hata oluştu:', error);
+          this.isloading = false;
+          this.cd.markForCheck();
+        }
+      });
   }
 
   registerToCourse(event: Event, courseId: number): void {
@@ -123,7 +126,21 @@ export class Courses implements OnInit { //yarı türkçe yarı ingilizce olduğ
     console.log('Kursa kayıt:', courseId);
   }
   
-  navigateToNewCourse() {
-    this.router.navigate(['/newCours']);
+  navigateToNewCourse(): void {
+    this.router.navigate(['/new-course']);
+  }
+
+  /**
+   * TrackBy function for ngFor performance optimization
+   */
+  trackByCourseId(index: number, course: ICourses): string {
+    return course.id;
+  }
+
+  /**
+   * TrackBy function for pagination numbers
+   */
+  trackByPageNumber(index: number, pageNumber: number): number {
+    return pageNumber;
   }
 }

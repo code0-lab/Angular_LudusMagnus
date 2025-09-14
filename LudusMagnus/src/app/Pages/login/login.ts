@@ -1,25 +1,25 @@
-import { Component, ElementRef, ViewChild, ChangeDetectionStrategy, ChangeDetectorRef } from '@angular/core';
-import { FormsModule } from '@angular/forms';
+import { Component, ElementRef, ViewChild, ChangeDetectionStrategy, ChangeDetectorRef, OnDestroy } from '@angular/core';
+import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { Router, RouterModule } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
 import { CommonModule } from '@angular/common';
+import { Subject, takeUntil } from 'rxjs';
 
 @Component({
   selector: 'app-login',
-  imports: [FormsModule, RouterModule, CommonModule],
+  imports: [ReactiveFormsModule, RouterModule, CommonModule],
   templateUrl: './login.html',
   styleUrls: ['./login.css'],
-  changeDetection: ChangeDetectionStrategy.Default
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class Login {
-
-  email = '';
-  password = '';
-  remember = false;
+export class Login implements OnDestroy {
+  loginForm: FormGroup;
   error = '';
   isLoading = false;
   showForgotPasswordMessage = false;
-  showTestUsers = false; // test kullanıcısını göster gizle
+  showTestUsers = false;
+  
+  private destroy$ = new Subject<void>();
 
   @ViewChild("emailRef")
   emailRef: ElementRef | undefined;
@@ -30,84 +30,98 @@ export class Login {
   constructor(
     private router: Router, 
     private authService: AuthService, 
-    private cdr: ChangeDetectorRef
-  ) { }
-
-  /**
-   * Handles user login using AuthService
-   */
-  userLogin() {
-    if (!this.email || !this.password) {
-      this.error = 'Email and password fields are required.';
-      this.cdr.detectChanges();
-      return;
-    }
-
-    this.isLoading = true;
-    this.error = '';
-    this.cdr.detectChanges();
-
-    this.authService.login(this.email, this.password).subscribe({
-      next: (success: boolean) => {
-        this.isLoading = false;
-        if (success) {
-          console.log('Login başarılı');
-          
-          // Kullanıcının rolüne göre yönlendirme
-          const user = this.authService.getCurrentUser();
-          if (user) {
-            switch (user.role) {
-              case 'admin':
-                this.router.navigate(['/admin-panel']);
-                break;
-              case 'teacher':
-                this.router.navigate(['/teacher-panel']);
-                break;
-              case 'student':
-                this.router.navigate(['/Courses']);
-                break;
-              default:
-                this.router.navigate(['/Courses']);
-            }
-          } else {
-            this.router.navigate(['/Courses']);
-          }
-        } else {
-          this.error = 'Email or password is incorrect';
-          this.cdr.detectChanges();
-        }
-      },
-      error: (err) => {
-        this.isLoading = false;
-        this.error = 'Fail to login';
-        console.error('Login hatası:', err);
-        this.cdr.detectChanges();
-      }
+    private cdr: ChangeDetectorRef,
+    private fb: FormBuilder
+  ) {
+    this.loginForm = this.fb.group({
+      email: ['', [Validators.required, Validators.email]],
+      password: ['', [Validators.required, Validators.minLength(6)]],
+      remember: [false]
     });
   }
 
-  /**
-   * Toggles the forgot password message visibility
-   */
-  toggleForgotPasswordMessage(event: Event) {
+  ngOnDestroy(): void { //Memory Leak Önleme : Component destroy edildiğinde subscription'ları temizler
+    this.destroy$.next();
+    this.destroy$.complete();
+  }
+
+  // AuthService kullanarak kullanıcı girişini yönetir
+  userLogin(): void {
+    if (this.loginForm.invalid) {
+      this.error = 'Please fill in all required fields correctly.';
+      this.cdr.markForCheck();
+      return;
+    }
+
+    const { email, password } = this.loginForm.value;
+    this.isLoading = true;
+    this.error = '';
+    this.cdr.markForCheck();
+
+    this.authService.login(email, password)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (success: boolean) => {
+          this.isLoading = false;
+          if (success) {
+            console.log('Login başarılı');
+            this.navigateByUserRole();
+          } else {
+            this.error = 'Email or password is incorrect';
+            this.cdr.markForCheck();
+          }
+        },
+        error: (err) => {
+          this.isLoading = false;
+          this.error = 'Failed to login. Please try again.';
+          console.error('Login hatası:', err);
+          this.cdr.markForCheck();
+        }
+      });
+  }
+
+
+  // Kullanıcıyı rolüne göre yönlendirir
+  private navigateByUserRole(): void {
+    const user = this.authService.getCurrentUser();
+    if (user) {
+      const routes = {
+        admin: '/admin-panel',
+        teacher: '/teacher-panel',
+        student: '/Courses'
+      };
+      this.router.navigate([routes[user.role as keyof typeof routes] || '/Courses']);
+    } else {
+      this.router.navigate(['/Courses']);
+    }
+  }
+
+
+  // Şifremi unuttum mesajının görünürlüğünü değiştirir
+  toggleForgotPasswordMessage(event: Event): void {
     event.preventDefault();
     this.showForgotPasswordMessage = !this.showForgotPasswordMessage;
+    this.cdr.markForCheck();
   }
 
-  /**
-   * Toggles the test users visibility
-   */
-  toggleTestUsers(event: Event) {
+
+  // Test kullanıcılarının görünürlüğünü değiştirir
+  toggleTestUsers(event: Event): void {
     event.preventDefault();
     this.showTestUsers = !this.showTestUsers;
+    this.cdr.markForCheck();
   }
 
-  /**
-   * Form submit handler
-   */
-  onSubmit(event: Event) {
+
+   // Form gönderme işleyicisi
+  onSubmit(event: Event): void {
     event.preventDefault();
     this.userLogin();
+  }
+
+ //Template erişimi için form kontrollerini getirir
+  get f() {
+    return this.loginForm.controls;
   }
 }
 

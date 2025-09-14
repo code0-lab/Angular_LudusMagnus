@@ -81,15 +81,7 @@
       "savedCourses": []
     }
   ],
-  "tokens": [
-    {
-      "id": "6c46",
-      "token": "VAlcHr10QkMKQYJNdcg8Nse6FG1KCsf2R2GKCuYhFTkuILZT3e8NoHjg46KPqjx3",
-      "userId": "74ec",
-      "expiresAt": "2025-09-14T16:43:53.785Z",
-      "createdAt": "2025-09-14T15:43:53.785Z"
-    }
-  ],
+  "tokens": [],
   "courses": [
     {
       "id": "1",
